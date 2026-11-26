@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ضغط الفيديو - تصغير حجم الفيديو مجاناً</title>
+<meta name="description" content="صغّر حجم الفيديو بدون رفعه على أي سيرفر. كل شيء يتم داخل المتصفح." />
+<style>
+  :root { --bg:#fff; --fg:#1a1a1a; --muted:#666; --card:#f4f4f4; --line:#aaa; --btn:#222; --btnfg:#fff; --bar:#2b7cff; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#161616; --fg:#eee; --muted:#aaa; --card:#242424; --line:#666; --btn:#eee; --btnfg:#111; --bar:#5b9bff; }
+  }
+  body { background:var(--bg); color:var(--fg); font-family:"Segoe UI",Tahoma,Arial,sans-serif; max-width:640px; margin:30px auto; padding:0 15px; line-height:1.7; }
+  h1 { margin-bottom:4px; }
+  .sub { color:var(--muted); margin-top:0; }
+  #drop { border:2px dashed var(--line); border-radius:8px; padding:40px 20px; text-align:center; color:var(--muted); cursor:pointer; }
+  #drop.over { border-color:var(--fg); color:var(--fg); }
+  input[type=file] { display:none; }
+  .row { margin-top:18px; }
+  label { display:block; margin-bottom:6px; }
+  input[type=range] { width:100%; direction:ltr; }
+  select { padding:6px; font-size:15px; max-width:100%; }
+  button, a.btn { margin-top:18px; padding:10px 22px; font-size:16px; cursor:pointer; background:var(--btn); color:var(--btnfg);
+    border:0; border-radius:6px; text-decoration:none; display:inline-block; font-family:inherit; }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  #info, #status { color:var(--muted); margin-top:12px; }
+  #barwrap { background:var(--card); border-radius:6px; height:14px; margin-top:14px; display:none; overflow:hidden; direction:ltr; }
+  #bar { background:var(--bar); height:100%; width:0; }
+  #result { background:var(--card); border-radius:6px; padding:12px 15px; margin-top:18px; display:none; }
+  .box { background:var(--card); border-radius:8px; padding:6px 20px 14px; margin-top:30px; }
+  .box h2 { font-size:18px; }
+  .box li { margin:6px 0; }
+</style>
+</head>
+<body>
+  <h1>ضغط الفيديو</h1>
+  <p class="sub">صغّر حجم الفيديو بأقل خسارة في الجودة. كل شيء يتم داخل متصفحك، ولا يتم رفع الفيديو إلى أي مكان.</p>
+
+  <div id="drop"><p id="dropText">اضغط هنا لاختيار فيديو، أو اسحبه وأفلته هنا</p>
+    <input type="file" id="file" accept="video/*" /></div>
+  <div id="info"></div>
+
+  <div class="row">
+    <label>الحجم المطلوب: <b id="pctLabel">10</b>% من الحجم الأصلي (<span id="estSize">-</span>)</label>
+    <input type="range" id="pct" min="5" max="60" value="10" />
+  </div>
+
+  <div class="row">
+    <label for="codec">الصيغة</label>
+    <select id="codec">
+      <option value="avc">H.264 (تعمل على كل الأجهزة)</option>
+      <option value="hevc">HEVC / H.265 (جودة أفضل بنفس الحجم، إذا كان متصفحك يدعمها)</option>
+    </select>
+  </div>
+
+  <button id="go" disabled>ابدأ الضغط</button>
+  <button id="cancel" style="display:none">إلغاء</button>
+  <div id="barwrap"><div id="bar"></div></div>
+  <p id="status"></p>
+
+  <div id="result">
+    <div><b>الحجم الأصلي:</b> <span id="rOrig"></span></div>
+    <div><b>الحجم الجديد:</b> <span id="rNew"></span></div>
+    <div><b>تم توفير:</b> <span id="rSaved"></span></div>
+    <a class="btn" id="dl" download="compressed.mp4">تحميل الفيديو المضغوط</a>
+  </div>
+
+  <div class="box">
+    <h2>طريقة الاستخدام</h2>
+    <ol>
+      <li>افتح الصفحة من متصفح <b>Chrome</b> أو <b>Edge</b> على الكمبيوتر (الأفضل).</li>
+      <li>اضغط على المربع واختر الفيديو، أو اسحبه إليه.</li>
+      <li>اترك الحجم المطلوب على <b>10%</b> (فيديو 2000 ميجابايت يصبح تقريباً 200 ميجابايت).</li>
+      <li>اضغط <b>ابدأ الضغط</b> وانتظر حتى يكتمل الشريط. <b>لا تغلق الصفحة</b> أثناء العمل.</li>
+      <li>اضغط <b>تحميل الفيديو المضغوط</b>.</li>
+    </ol>
+    <h2>نصائح</h2>
+    <ul>
+      <li>إذا كان الفيديو من الموبايل أو الكاميرا أو تسجيل شاشة، فغالباً 10% تعطي جودة قريبة جداً من الأصل.</li>
+      <li>إذا كان الفيديو مضغوطاً أصلاً (محمّل من الإنترنت مثلاً)، ارفع النسبة إلى 30–50% حتى لا تقل الجودة.</li>
+      <li>كلما كان الفيديو أكبر، زاد وقت الضغط. الفيديوهات الكبيرة قد تحتاج عدة دقائق.</li>
+      <li>الصفحة تحتاج إنترنت عند فتحها فقط لتحميل أداة الضغط، أما الفيديو نفسه فلا يغادر جهازك.</li>
+    </ul>
+  </div>
+
+<script type="module">
+const $ = id => document.getElementById(id);
+const AUDIO_BPS = 128000;
+let file = null, duration = 0, conversion = null, lib = null;
+
+const fmt = b => b >= 1e9 ? (b/1e9).toFixed(2)+' جيجابايت' : (b/1e6).toFixed(1)+' ميجابايت';
+
+try {
+  lib = await import('https://cdn.jsdelivr.net/npm/mediabunny@1.46.0/dist/bundles/mediabunny.min.mjs');
+} catch (e) {
+  $('status').textContent = 'تعذر تحميل أداة الضغط. تأكد من الاتصال بالإنترنت ثم أعد تحميل الصفحة.';
+}
+if (!('VideoEncoder' in window)) {
+  $('status').textContent = 'متصفحك لا يدعم هذه الأداة. استخدم نسخة حديثة من Chrome أو Edge أو Safari.';
+}
+
+const drop = $('drop'), input = $('file');
+drop.onclick = () => input.click();
+drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
+drop.ondragleave = () => drop.classList.remove('over');
+drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); if (e.dataTransfer.files[0]) pick(e.dataTransfer.files[0]); };
+input.onchange = () => input.files[0] && pick(input.files[0]);
+$('pct').oninput = updateEstimate;
+
+async function pick(f) {
+  file = f; $('result').style.display = 'none'; $('status').textContent = '';
+  $('dropText').textContent = 'تم اختيار: ' + f.name;
+  $('go').disabled = true;
+  if (!lib) return;
+  try {
+    const inp = new lib.Input({ source: new lib.BlobSource(f), formats: lib.ALL_FORMATS });
+    duration = await inp.computeDuration();
+    const mbps = (f.size * 8 / duration / 1e6).toFixed(1);
+    $('info').textContent = `الحجم: ${fmt(f.size)} · المدة: ${Math.round(duration)} ثانية · معدل البت الحالي: ${mbps} Mbps`;
+    updateEstimate();
+    $('go').disabled = false;
+  } catch (e) {
+    $('info').textContent = '';
+    $('status').textContent = 'تعذر قراءة هذا الفيديو. جرّب ملف MP4 أو MOV.';
+  }
+}
+
+function videoBitrate() {
+  const targetBits = file.size * 8 * ($('pct').value / 100);
+  return Math.max(100000, Math.floor(targetBits / duration - AUDIO_BPS));
+}
+
+function updateEstimate() {
+  $('pctLabel').textContent = $('pct').value;
+  if (file) $('estSize').textContent = '≈ ' + fmt(file.size * $('pct').value / 100);
+}
+
+$('go').onclick = async () => {
+  $('go').disabled = true; $('cancel').style.display = 'inline-block';
+  $('result').style.display = 'none'; $('barwrap').style.display = 'block'; $('bar').style.width = '0';
+  $('status').textContent = 'جارٍ الضغط... لا تغلق هذه الصفحة.';
+  const t0 = Date.now();
+  try {
+    const codec = $('codec').value;
+    const bitrate = videoBitrate();
+    if (!(await lib.canEncodeVideo(codec, { bitrate }))) {
+      throw new Error('هذا المتصفح لا يدعم ' + (codec === 'hevc' ? 'HEVC' : 'H.264') + '. اختر الصيغة الأخرى.');
+    }
+    const inp = new lib.Input({ source: new lib.BlobSource(file), formats: lib.ALL_FORMATS });
+    const output = new lib.Output({ format: new lib.Mp4OutputFormat(), target: new lib.BufferTarget() });
+    conversion = await lib.Conversion.init({
+      input: inp, output,
+      video: { codec, bitrate },
+      audio: { codec: 'aac', bitrate: AUDIO_BPS },
+    });
+    if (!conversion.isValid) throw new Error('لا يمكن تحويل هذا الفيديو داخل المتصفح.');
+    conversion.onProgress = p => {
+      $('bar').style.width = (p * 100).toFixed(1) + '%';
+      const el = (Date.now() - t0) / 1000;
+      const left = p > 0.02 ? Math.round(el / p - el) : null;
+      $('status').textContent = `جارٍ الضغط... ${(p*100).toFixed(0)}%` + (left !== null ? ` · متبقي حوالي ${Math.ceil(left/60)} دقيقة` : '');
+    };
+    await conversion.execute();
+    const blob = new Blob([output.target.buffer], { type: 'video/mp4' });
+    const url = URL.createObjectURL(blob);
+    $('dl').href = url;
+    $('dl').download = file.name.replace(/\.[^.]+$/, '') + '-compressed.mp4';
+    $('rOrig').textContent = fmt(file.size);
+    $('rNew').textContent = fmt(blob.size);
+    $('rSaved').textContent = ((1 - blob.size / file.size) * 100).toFixed(1) + '%';
+    $('result').style.display = 'block';
+    $('status').textContent = 'تم بنجاح!';
+  } catch (e) {
+    $('status').textContent = conversion && conversion.state === 'canceled' ? 'تم الإلغاء.' : 'خطأ: ' + e.message;
+  } finally {
+    $('go').disabled = false; $('cancel').style.display = 'none'; conversion = null;
+  }
+};
+
+$('cancel').onclick = async () => { if (conversion) { try { await conversion.cancel(); } catch (_) {} $('status').textContent = 'تم الإلغاء.'; } };
+</script>
+</body>
+</html>
